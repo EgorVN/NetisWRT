@@ -1,68 +1,59 @@
 # NetisWRT
-# ImmortalWrt for Netis NX62 (Ultimate V2)
-### The Complete Networking & Storage Solution for MediaTek MT7986
+# ImmortalWrt for Netis NX62 (Ultimate V2 - Performance Optimized)
+### Enterprise-Grade Powerhouse: High-Speed Networking, NAS, and Security
 
-This is an updated, high-performance custom build of **ImmortalWrt** for the **Netis NX62** (Netcore N60 Pro). **Version 2** focuses on superior disk management and expanded connectivity options, making it a perfect choice for a home NAS, a secure VPN gateway, or a 5G mobile router.
+This is the definitive **ImmortalWrt** custom build for the **Netis NX62** (Netcore N60 Pro), powered by the **MediaTek MT7986 (Filogic 830)** quad-core SoC. 
 
----
-
-## 💎 What's New in V2?
-
-* **Integrated Disk Manager:** Added `luci-app-disk-man` for a full-featured graphical partition and disk management experience.
-* **Expanded DDNS Support:** Beyond Cloudflare, V2 includes a wide array of DDNS services for remote access.
-* **Refined NAS Stack:** Optimized Samba 4 and NTFS3 configuration for maximum USB 3.0 throughput.
+**Ultimate V2** is not just about features; it's about **efficiency**. We've added hardware-level optimizations to ensure gigabit speeds with minimal CPU load and advanced tools for network health.
 
 ---
 
-## 🚀 Key Features
+## 🚀 Key Enhancements in V2
 
-### 🛡️ Privacy & VPN Mastery
-* **AmneziaWG (AWG):** Anti-DPI VPN technology to bypass strict censorship and blocks.
-* **DNS-over-HTTPS:** Encrypted DNS queries via `https-dns-proxy`.
-* **Advanced Routing:** `dnsmasq-full` with `ipset` support for domain-based traffic steering (split tunneling).
+### ⚡ Peak Performance & Efficiency
+* **Hardware Offloading:** Enabled `kmod-nft-offload` for near-zero CPU usage during high-speed routing.
+* **Core Optimization:** `irqbalance` and `kmod-rps` distribute network interrupts across all four cores, preventing bottlenecks.
+* **SQM (Smart Queue Management):** Integrated `luci-app-sqm` to eliminate bufferbloat, ensuring low latency for gaming and VOIP even during heavy downloads.
+* **Monitoring:** `nlbwmon` for detailed bandwidth tracking by device and `iperf3` for network speed testing.
 
-### 💾 Storage & NAS (Disk-Master)
-* **Disk-Man UI:** Format, partition, and manage your HDDs/SSDs directly from LuCI.
-* **Modern FS Support:** High-speed kernel-level **NTFS3**, **exFAT**, and **ext4**.
-* **Maintenance Ready:** Includes `e2fsprogs` and `ntfs-3g-utils` for disk health and repairs.
-* **UAS Support:** USB Attached SCSI for SSD-grade speeds over USB 3.0.
+### 🛡️ Privacy & Advanced Security
+* **AmneziaWG 2.0 (AWG):** Superior anti-DPI VPN technology to bypass strict censorship.
+* **Ad-Blocking:** `adblock-fast` provides a high-performance, lightweight solution to block ads and trackers at the DNS level.
+* **L2TP Server:** Includes `xl2tpd`, allowing you to host your own VPN server for remote access.
+* **Encrypted DNS:** `https-dns-proxy` for secure, private DNS queries (DoH).
 
-### 📶 Universal Connectivity
-* **4G/5G Ready:** Modern `ModemManager` stack with support for MBIM, QMI, and RNDIS protocols.
-* **ISP Protocols:** Full support for PPPoE and L2TP (`xl2tpd`).
-* **Wi-Fi 6:** Secure WPA3-SAE connectivity powered by `wpad-openssl`.
-
-### 🛠️ System Tools
-* **Terminal:** `ttyd` (Web-based terminal access).
-* **File Manager:** `Midnight Commander (mc)`.
-* **Monitoring:** `htop` and `luci-app-statistics` for real-time load and temperature tracking.
+### 💾 Pro NAS & Disk Management
+* **Disk-Man Interface:** A complete graphical manager for partitions, formatting, and mounting.
+* **Health Check:** Added `badblocks` to scan and monitor the physical health of your drives.
+* **Samba 4 & Discovery:** Full NAS functionality with `wsdd2` and `avahi` for seamless discovery on Windows/macOS/Linux.
+* **File Systems:** Kernel-level support for **NTFS3**, **exFAT**, and **ext4** with proper NLS (UTF-8/CP866) encoding.
 
 ---
 
-## 📦 Package Summary
+## 📦 Package Highlights
 
-| Category | Highlights |
+| Category | Essential Tools |
 | :--- | :--- |
-| **WAN/Internet** | `ModemManager`, `ppp-mod-pppoe`, `xl2tpd`, `usb-modeswitch` |
-| **VPN** | `luci-app-amneziawg`, `kmod-amneziawg` |
-| **Disk/NAS** | `luci-app-disk-man`, `samba4-server`, `kmod-fs-ntfs3`, `kmod-fs-exfat` |
-| **Security** | `https-dns-proxy`, `wpad-openssl`, `dnsmasq-full` |
-| **Admin Tools** | `mc`, `nano`, `htop`, `luci-app-ttyd`, `usbutils` |
+| **Networking** | `firewall4`, `nftables`, `sqm`, `nlbwmon`, `irqbalance`, `ethtool` |
+| **VPN / WAN** | `luci-app-amneziawg`, `xl2tpd` (Server), `ppp-mod-pppoe`, `ddns-scripts` |
+| **Modem** | `ModemManager`, `cdc-mbim`, `qmi-wwan`, `rndis` |
+| **Storage** | `luci-app-disk-man`, `samba4-server`, `badblocks`, `usb-storage-uas` |
+| **Admin Utilities**| `ttyd`, `mc`, `htop`, `tcpdump`, `iperf3`, `logrotate`, `usbutils` |
 
 ---
 
 ## 🛠 Installation
 
-### Initial Flash (from Stock)
-1.  Enter **U-Boot Web UI**: Hold the **Reset** button while powering on (hold for 10-15s).
-2.  Set PC IP to `192.168.1.2`.
-3.  Flash the `factory.bin` via `192.168.1.1`.
+### 1. Initial Flash (from Stock)
+1. Enter **U-Boot Web UI**: Hold **Reset** while powering on (hold for 12-15s).
+2. Set PC IP to `192.168.1.2`.
+3. Flash the `factory.bin` via `192.168.1.1`.
 
-### Upgrade (from OpenWrt)
-1.  Use the `sysupgrade.bin` file in **System -> Backup / Flash Firmware**.
-2.  **Recommendation:** Uncheck "Keep settings" for the most stable transition to V2.
+### 2. Update (from OpenWrt)
+1. Use the `sysupgrade.bin` file in **System -> Backup / Flash Firmware**.
+2. **Important:** Uncheck "Keep settings" to initialize all new V2 performance tweaks correctly.
 
 ---
 
 ## ⚠️ Disclaimer
-*Flashing custom firmware involves risks. The author is not responsible for any hardware damage. Always back up your Factory/EEPROM partition before flashing.*
+*Flashing custom firmware carries inherent risks. Ensure you have a backup of your device's original Factory/EEPROM partition.*
