@@ -7,6 +7,7 @@ This repository contains a custom ImmortalWrt build specifically optimized for t
 This firmware is designed for power users who need a robust networking hub that combines high-speed VPN capabilities, NAS-grade storage features, and reliable mobile broadband failover.
 
 🚀 Key Features
+
 🛡️ Advanced VPN & Privacy
 
 AmneziaWG (AWG): Integrated support for the modified WireGuard protocol, designed to bypass DPI (Deep Packet Inspection) and VPN blocks. Includes LuCI interface.
