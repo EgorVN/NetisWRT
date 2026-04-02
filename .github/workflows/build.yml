@@ -1,0 +1,110 @@
+name: Build ImmortalWrt for Netis NX62
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Initialization Environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
+          gettext git libncurses5-dev libssl-dev libxml-parser-perl python3-setuptools \
+          quilt rsync swig unzip zlib1g-dev bash-completion bpbtools
+          sudo apt-get clean
+
+      - name: Clone ImmortalWrt Source
+        run: |
+          # Клонируем ветку master (актуальная для новых Filogic)
+          git clone --depth 1 https://github.com openwrt
+
+      - name: Update and Install Feeds
+        run: |
+          cd openwrt
+          # Добавляем фид AmneziaWG от Slava-Shchipunov
+          echo "src-git awg https://github.com/Slava-Shchipunov/awg-openwrt" >> feeds.conf.default
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Generate Config
+        run: |
+          cd openwrt
+          # Базовые настройки платформы
+          cat <<EOT > .config
+          CONFIG_TARGET_mediatek=y
+          CONFIG_TARGET_mediatek_filogic=y
+          CONFIG_TARGET_mediatek_filogic_DEVICE_netcore_n60-pro=y
+
+          # Интерфейс и локализация
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-i18n-base-ru=y
+          CONFIG_PACKAGE_luci-ssl=y
+          CONFIG_PACKAGE_luci-app-ttyd=y
+
+          # VPN AmneziaWG (из добавленного фида)
+          CONFIG_PACKAGE_kmod-amneziawg=y
+          CONFIG_PACKAGE_amneziawg-tools=y
+          CONFIG_PACKAGE_luci-app-amneziawg=y
+
+          # Сетевые сервисы
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_ddns-scripts_cloudflare=y
+          CONFIG_PACKAGE_https-dns-proxy=y
+          CONFIG_PACKAGE_luci-app-https-dns-proxy=y
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_luci-app-xl2tpd=y
+
+          # Утилиты и USB
+          CONFIG_PACKAGE_mc=y
+          CONFIG_PACKAGE_nano=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_htop=y
+          CONFIG_PACKAGE_kmod-usb-storage=y
+          CONFIG_PACKAGE_kmod-usb-storage-uas=y
+          CONFIG_PACKAGE_kmod-fs-ntfs3=y
+          CONFIG_PACKAGE_kmod-fs-exfat=y
+          CONFIG_PACKAGE_block-mount=y
+          CONFIG_PACKAGE_luci-app-hd-idle=y
+
+          # Модемы
+          CONFIG_PACKAGE_kmod-usb-net-rndis=y
+          CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
+          CONFIG_PACKAGE_usb-modeswitch=y
+
+          # DNS и Wi-Fi (замена dnsmasq на full)
+          CONFIG_PACKAGE_dnsmasq-full=y
+          CONFIG_PACKAGE_dnsmasq_full_dhcpv6=y
+          CONFIG_PACKAGE_dnsmasq_full_ipset=y
+          CONFIG_PACKAGE_wpad-openssl=y
+          EOT
+          
+          # Удаляем стандартный dnsmasq и wpad-basic для исключения конфликтов
+          sed -i 's/CONFIG_PACKAGE_dnsmasq=y/# CONFIG_PACKAGE_dnsmasq is not set/' .config
+          sed -i 's/CONFIG_PACKAGE_wpad-basic-wolfssl=y/# CONFIG_PACKAGE_wpad-basic-wolfssl is not set/' .config
+          
+          make defconfig
+
+      - name: Download Dl Libs
+        run: |
+          cd openwrt
+          make download -j8
+
+      - name: Compile Firmware
+        run: |
+          cd openwrt
+          # Сборка на всех ядрах, при ошибке — вывод лога в 1 поток
+          make -j$(nproc) || make -j1 V=s
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ImmortalWrt_NX62_Firmware
+          path: openwrt/bin/targets/mediatek/filogic/*.bin
