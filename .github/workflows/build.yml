@@ -1,4 +1,4 @@
-name: Build ImmortalWrt Netis NX62 Ultimate
+name: Build ImmortalWrt Netis NX62 Ultimate V2
 
 on:
   workflow_dispatch:
@@ -28,7 +28,6 @@ jobs:
       - name: Update and Install Feeds
         run: |
           cd openwrt
-          # Добавляем AWG от Славы
           echo "src-git awg https://github.com/Slava-Shchipunov/awg-openwrt" >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
@@ -38,36 +37,26 @@ jobs:
           cd openwrt
           rm -f .config
           
-          # Установка таргета устройства (Netcore N60 Pro = Netis NX62)
           echo "CONFIG_TARGET_mediatek=y" > .config
           echo "CONFIG_TARGET_mediatek_filogic=y" >> .config
           echo "CONFIG_TARGET_mediatek_filogic_DEVICE_netcore_n60-pro=y" >> .config
           
-          # Отключение базовых пакетов для избежания конфликтов с full-версиями
           echo "# CONFIG_PACKAGE_dnsmasq is not set" >> .config
           echo "# CONFIG_PACKAGE_wpad-basic-wolfssl is not set" >> .config
           echo "# CONFIG_PACKAGE_wpad-mini is not set" >> .config
 
           cat <<EOT >> .config
-          # --- Интерфейс и Локализация ---
+          # --- База LuCI и Локализация ---
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_luci-i18n-base-ru=y
           CONFIG_PACKAGE_luci-ssl=y
           CONFIG_PACKAGE_luci-app-ttyd=y
 
-          # --- Сетевые протоколы и WAN (PPPoE / L2TP) ---
+          # --- Связь (PPPoE / L2TP / Modem) ---
           CONFIG_PACKAGE_luci-proto-ppp=y
           CONFIG_PACKAGE_ppp-mod-pppoe=y
           CONFIG_PACKAGE_xl2tpd=y
           CONFIG_PACKAGE_ppp-mod-pppol2tp=y
-          CONFIG_PACKAGE_luci-app-xl2tpd=y
-
-          # --- VPN AmneziaWG (с LuCI) ---
-          CONFIG_PACKAGE_kmod-amneziawg=y
-          CONFIG_PACKAGE_amneziawg-tools=y
-          CONFIG_PACKAGE_luci-app-amneziawg=y
-
-          # --- ModemManager (4G/5G Модемы + LuCI) ---
           CONFIG_PACKAGE_modemmanager=y
           CONFIG_PACKAGE_luci-app-modemmanager=y
           CONFIG_PACKAGE_usb-modeswitch=y
@@ -76,40 +65,38 @@ jobs:
           CONFIG_PACKAGE_kmod-usb-net-rndis=y
           CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
 
-          # --- Samba 4 (NAS / Сетевой диск + LuCI) ---
+          # --- VPN (AmneziaWG) ---
+          CONFIG_PACKAGE_kmod-amneziawg=y
+          CONFIG_PACKAGE_amneziawg-tools=y
+          CONFIG_PACKAGE_luci-app-amneziawg=y
+
+          # --- NAS и Диски (Samba4 + DiskMan) ---
           CONFIG_PACKAGE_luci-app-samba4=y
           CONFIG_PACKAGE_samba4-server=y
-          CONFIG_PACKAGE_samba4-utils=y
-
-          # --- USB 3.0 и управление дисками (Format/Partition) ---
           CONFIG_PACKAGE_kmod-usb3=y
-          CONFIG_PACKAGE_kmod-usb-storage=y
           CONFIG_PACKAGE_kmod-usb-storage-uas=y
           CONFIG_PACKAGE_kmod-fs-ntfs3=y
           CONFIG_PACKAGE_kmod-fs-exfat=y
           CONFIG_PACKAGE_block-mount=y
           CONFIG_PACKAGE_luci-app-hd-idle=y
-          CONFIG_PACKAGE_luci-app-fdisk=y
+          CONFIG_PACKAGE_luci-app-disk-man=y
           CONFIG_PACKAGE_fdisk=y
-          CONFIG_PACKAGE_gdisk=y
           CONFIG_PACKAGE_ntfs-3g-utils=y
           CONFIG_PACKAGE_e2fsprogs=y
-          CONFIG_PACKAGE_dosfstools=y
 
-          # --- DNS и системные сервисы ---
+          # --- Сетевые службы и DNS ---
           CONFIG_PACKAGE_dnsmasq-full=y
-          CONFIG_PACKAGE_dnsmasq_full_dhcpv6=y
           CONFIG_PACKAGE_dnsmasq_full_ipset=y
           CONFIG_PACKAGE_https-dns-proxy=y
           CONFIG_PACKAGE_luci-app-https-dns-proxy=y
           CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare=y
+          CONFIG_PACKAGE_ddns-scripts_services=y
 
-          # --- Инструменты для Split Tunneling (nftables + routing) ---
+          # --- Утилиты ---
           CONFIG_PACKAGE_ip-full=y
           CONFIG_PACKAGE_kmod-nft-conntrack=y
-
-          # --- Утилиты и Статистика ---
           CONFIG_PACKAGE_mc=y
           CONFIG_PACKAGE_nano=y
           CONFIG_PACKAGE_curl=y
@@ -117,7 +104,7 @@ jobs:
           CONFIG_PACKAGE_luci-app-statistics=y
           CONFIG_PACKAGE_usbutils=y
 
-          # --- Wi-Fi 6 и Шифрование ---
+          # --- Wi-Fi 6 ---
           CONFIG_PACKAGE_wpad-openssl=y
           EOT
           
@@ -131,11 +118,10 @@ jobs:
       - name: Compile Firmware
         run: |
           cd openwrt
-          # Сборка в многопотоке. Если упадет - лог ошибки в 1 поток.
           make -j$(nproc) || make -j1 V=s
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ImmortalWrt_NetisNX62_Ultimate_Image
+          name: ImmortalWrt_NetisNX62_Ultimate_V2
           path: openwrt/bin/targets/mediatek/filogic/
