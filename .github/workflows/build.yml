@@ -1,4 +1,4 @@
-name: Build ImmortalWrt for Netis NX62
+name: Build ImmortalWrt for Netis NX62 (Custom PBR-Ready)
 
 on:
   workflow_dispatch:
@@ -23,13 +23,11 @@ jobs:
 
       - name: Clone ImmortalWrt Source
         run: |
-          # Используем ветку master для поддержки свежего железа Filogic
           git clone --depth 1 https://github.com/immortalwrt/immortalwrt openwrt
 
       - name: Update and Install Feeds
         run: |
           cd openwrt
-          # Добавляем актуальный AWG от Славы
           echo "src-git awg https://github.com/Slava-Shchipunov/awg-openwrt" >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
@@ -38,36 +36,52 @@ jobs:
         run: |
           cd openwrt
           
-          # 1. Сначала задаем таргет железа
+          # База устройства
           echo "CONFIG_TARGET_mediatek=y" > .config
           echo "CONFIG_TARGET_mediatek_filogic=y" >> .config
           echo "CONFIG_TARGET_mediatek_filogic_DEVICE_netcore_n60-pro=y" >> .config
 
-          # 2. Явно ВЫКЛЮЧАЕМ конфликтующие пакеты
+          # Удаление конфликтов (важно для dnsmasq-full)
           echo "# CONFIG_PACKAGE_dnsmasq is not set" >> .config
           echo "# CONFIG_PACKAGE_wpad-basic-wolfssl is not set" >> .config
           echo "# CONFIG_PACKAGE_wpad-mini is not set" >> .config
 
-          # 3. Добавляем твой список ПО
           cat <<EOT >> .config
-          # LuCI и RU локализация
+          # Интерфейс и локализация
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_luci-i18n-base-ru=y
           CONFIG_PACKAGE_luci-ssl=y
           CONFIG_PACKAGE_luci-app-ttyd=y
 
-          # AmneziaWG
+          # VPN: AmneziaWG (поддерживает и обычный WG)
           CONFIG_PACKAGE_kmod-amneziawg=y
           CONFIG_PACKAGE_amneziawg-tools=y
           CONFIG_PACKAGE_luci-app-amneziawg=y
 
-          # Сетевые службы (DNS/L2TP)
-          CONFIG_PACKAGE_luci-app-ddns=y
-          CONFIG_PACKAGE_ddns-scripts_cloudflare=y
+          # Сеть и DNS
+          CONFIG_PACKAGE_dnsmasq-full=y
+          CONFIG_PACKAGE_dnsmasq_full_dhcpv6=y
+          CONFIG_PACKAGE_dnsmasq_full_ipset=y
           CONFIG_PACKAGE_https-dns-proxy=y
           CONFIG_PACKAGE_luci-app-https-dns-proxy=y
           CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_ppp-mod-pppol2tp=y
           CONFIG_PACKAGE_luci-app-xl2tpd=y
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_ddns-scripts_cloudflare=y
+
+          # Инструменты для твоего Split Tunneling (nftables + routing)
+          CONFIG_PACKAGE_ip-full=y
+          CONFIG_PACKAGE_kmod-nft-tproxy=y
+          CONFIG_PACKAGE_kmod-nft-socket=y
+          CONFIG_PACKAGE_kmod-nft-conntrack=y
+
+          # Системный мониторинг (аналог AX80)
+          CONFIG_PACKAGE_luci-app-statistics=y
+          CONFIG_PACKAGE_collectd-mod-cpu=y
+          CONFIG_PACKAGE_collectd-mod-interface=y
+          CONFIG_PACKAGE_collectd-mod-memory=y
+          CONFIG_PACKAGE_collectd-mod-load=y
 
           # Утилиты
           CONFIG_PACKAGE_mc=y
@@ -75,25 +89,21 @@ jobs:
           CONFIG_PACKAGE_curl=y
           CONFIG_PACKAGE_htop=y
 
-          # Работа с дисками и модемами
+          # USB, Диски, Модемы
           CONFIG_PACKAGE_kmod-usb-storage=y
           CONFIG_PACKAGE_kmod-usb-storage-uas=y
           CONFIG_PACKAGE_kmod-fs-ntfs3=y
           CONFIG_PACKAGE_kmod-fs-exfat=y
           CONFIG_PACKAGE_block-mount=y
           CONFIG_PACKAGE_luci-app-hd-idle=y
+          CONFIG_PACKAGE_usb-modeswitch=y
           CONFIG_PACKAGE_kmod-usb-net-rndis=y
           CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
-          CONFIG_PACKAGE_usb-modeswitch=y
 
-          # Системные компоненты (Full версии)
-          CONFIG_PACKAGE_dnsmasq-full=y
-          CONFIG_PACKAGE_dnsmasq_full_dhcpv6=y
-          CONFIG_PACKAGE_dnsmasq_full_ipset=y
+          # Wi-Fi и Шифрование
           CONFIG_PACKAGE_wpad-openssl=y
           EOT
 
-          # Применяем конфиг и достраиваем зависимости
           make defconfig
 
       - name: Download DL
@@ -104,7 +114,6 @@ jobs:
       - name: Compile Firmware
         run: |
           cd openwrt
-          # Собираем. Если упадет — выведет лог ошибки (V=s) в один поток
           make -j$(nproc) || make -j1 V=s
 
       - name: Upload Artifacts
