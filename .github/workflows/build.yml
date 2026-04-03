@@ -1,4 +1,4 @@
-name: Build ImmortalWrt Netis NX62 Ultimate V2
+name: Build ImmortalWrt Netis NX62 Ultimate V6
 
 on:
   workflow_dispatch:
@@ -37,22 +37,20 @@ jobs:
           cd openwrt
           rm -f .config
           
-          # Основные параметры железа (Filogic 820 / 512MB RAM / 128MB Flash)
+          # Target
           echo "CONFIG_TARGET_mediatek=y" > .config
           echo "CONFIG_TARGET_mediatek_filogic=y" >> .config
           echo "CONFIG_TARGET_mediatek_filogic_DEVICE_netcore_n60-pro=y" >> .config
           
-          # Удаление конфликтов
+          # Conflicts
           echo "# CONFIG_PACKAGE_dnsmasq is not set" >> .config
           echo "# CONFIG_PACKAGE_wpad-basic-wolfssl is not set" >> .config
           echo "# CONFIG_PACKAGE_wpad-mini is not set" >> .config
 
           cat <<EOT >> .config
-          # --- БАЗА ---
+          # --- БАЗА И СЕРТИФИКАТЫ ---
           CONFIG_PACKAGE_ca-bundle=y
           CONFIG_PACKAGE_ca-certificates=y
-
-          # --- Firewall / Fast Path ---
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
           CONFIG_PACKAGE_kmod-nft-core=y
@@ -77,15 +75,18 @@ jobs:
           CONFIG_PACKAGE_ppp-mod-pppoe=y
           CONFIG_PACKAGE_ppp-mod-pppol2tp=y
 
-          # --- L2TP SERVER (возвращено) ---
+          # --- L2TP SERVER ---
           CONFIG_PACKAGE_luci-app-xl2tpd=y
           CONFIG_PACKAGE_xl2tpd=y
 
-          # --- Modem ---
+          # --- MODEM 4G/5G (ПОЛНЫЙ СТЕК: MBIM, NCM, ACM, QMI) ---
           CONFIG_PACKAGE_modemmanager=y
           CONFIG_PACKAGE_luci-app-modemmanager=y
           CONFIG_PACKAGE_usb-modeswitch=y
           CONFIG_PACKAGE_kmod-usb-net-cdc-mbim=y
+          CONFIG_PACKAGE_kmod-usb-net-cdc-ncm=y
+          CONFIG_PACKAGE_kmod-usb-acm=y
+          CONFIG_PACKAGE_kmod-usb-serial-option=y
           CONFIG_PACKAGE_kmod-usb-net-qmi-wwan=y
           CONFIG_PACKAGE_kmod-usb-net-rndis=y
           CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
@@ -95,25 +96,30 @@ jobs:
           CONFIG_PACKAGE_amneziawg-tools=y
           CONFIG_PACKAGE_luci-app-amneziawg=y
 
-          # --- DNS / Adblock ---
+          # --- DNS / Adblock / SQM / Access Control ---
           CONFIG_PACKAGE_dnsmasq-full=y
+          CONFIG_PACKAGE_dnsmasq_full_ipset=y
+          CONFIG_PACKAGE_dnsmasq_full_nftset=y
+          CONFIG_PACKAGE_luci-app-sqm=y
           CONFIG_PACKAGE_luci-app-adblock-fast=y
           CONFIG_PACKAGE_https-dns-proxy=y
           CONFIG_PACKAGE_luci-app-https-dns-proxy=y
+          CONFIG_PACKAGE_luci-app-access-control=y
 
-          # --- DDNS (возвращено) ---
+          # --- DDNS ---
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare=y
           CONFIG_PACKAGE_ddns-scripts_services=y
           CONFIG_PACKAGE_ddns-scripts_no-ip_com=y
 
-          # --- Monitoring / Network services ---
+          # --- МОНИТОРИНГ И ОБНАРУЖЕНИЕ ---
           CONFIG_PACKAGE_luci-app-nlbwmon=y
           CONFIG_PACKAGE_avahi-dbus-daemon=y
           CONFIG_PACKAGE_luci-app-avahi=y
+          CONFIG_PACKAGE_wsdd2=y
 
-          # --- Storage / NAS ---
+          # --- NAS И ДИСКИ ---
           CONFIG_PACKAGE_luci-app-samba4=y
           CONFIG_PACKAGE_samba4-server=y
           CONFIG_PACKAGE_samba4-libs=y
@@ -128,12 +134,17 @@ jobs:
           CONFIG_PACKAGE_kmod-nls-cp866=y
           CONFIG_PACKAGE_block-mount=y
           CONFIG_PACKAGE_luci-app-disk-man=y
-          CONFIG_PACKAGE_wsdd2=y
+          CONFIG_PACKAGE_luci-app-hd-idle=y
 
-          # --- SQM ---
-          CONFIG_PACKAGE_luci-app-sqm=y
+          # --- MESH И БЕСШОВНЫЙ WI-FI ---
+          CONFIG_PACKAGE_wpad-openssl=y
+          CONFIG_PACKAGE_dawn=y
+          CONFIG_PACKAGE_luci-app-dawn=y
+          CONFIG_PACKAGE_kmod-batman-adv=y
+          CONFIG_PACKAGE_batctl-default=y
+          CONFIG_PACKAGE_luci-app-batman-adv=y
 
-          # --- Utils ---
+          # --- УТИЛИТЫ И ДИАГНОСТИКА ---
           CONFIG_PACKAGE_mc=y
           CONFIG_PACKAGE_nano=y
           CONFIG_PACKAGE_htop=y
@@ -145,9 +156,6 @@ jobs:
           CONFIG_PACKAGE_iperf3=y
           CONFIG_PACKAGE_ethtool=y
           CONFIG_PACKAGE_logrotate=y
-
-          # --- Wi-Fi ---
-          CONFIG_PACKAGE_wpad-openssl=y
           EOT
           
           make defconfig
@@ -165,5 +173,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ImmortalWrt_NetisNX62_Ultimate_V2
+          name: ImmortalWrt_NetisNX62_Ultimate_V6
           path: openwrt/bin/targets/mediatek/filogic/
