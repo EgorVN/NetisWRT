@@ -2,7 +2,7 @@
 # ImmortalWrt for Netis NX62 (Ultimate V6 - Mesh & Roaming Edition)
 ### Enterprise-Grade Networking, Seamless Wi-Fi, NAS, and Advanced VPN
 
-This is the ultimate, feature-packed custom **ImmortalWrt** build for the **Netis NX62** (Netcore N60 Pro), powered by the quad-core **MediaTek MT7986 (Filogic 820)** SoC. 
+This is the ultimate, feature-packed custom **ImmortalWrt** build for the **Netis NX62** (Netcore N60 Pro), powered by the quad-core **MediaTek MT7986 (Filogic 830)** SoC. 
 
 **Ultimate V6** introduces massive upgrades for multi-node environments, including **B.A.T.M.A.N. Advanced Mesh** and **DAWN** for intelligent, seamless Wi-Fi roaming, alongside strict Access Control policies.
 
