@@ -1,4 +1,4 @@
-name: Build ImmortalWrt Netis NX62 Ultimate V6
+name: Build ImmortalWrt Netis NX62 Ultimate V7
 
 on:
   workflow_dispatch:
@@ -96,6 +96,12 @@ jobs:
           CONFIG_PACKAGE_amneziawg-tools=y
           CONFIG_PACKAGE_luci-app-amneziawg=y
 
+          # --- МАРШРУТИЗАЦИЯ И ТУННЕЛИРОВАНИЕ (BGP + Babel + VxLAN) ---
+          CONFIG_PACKAGE_babeld=y
+          CONFIG_PACKAGE_bird2=y
+          CONFIG_PACKAGE_bird2c=y
+          CONFIG_PACKAGE_kmod-vxlan=y
+
           # --- DNS / Adblock / SQM / Access Control ---
           CONFIG_PACKAGE_dnsmasq-full=y
           CONFIG_PACKAGE_dnsmasq_full_ipset=y
@@ -173,5 +179,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ImmortalWrt_NetisNX62_Ultimate_V6
+          name: ImmortalWrt_NetisNX62_Ultimate_V7
           path: openwrt/bin/targets/mediatek/filogic/
