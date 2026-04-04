@@ -1,14 +1,14 @@
 # NetisWRT
-# ImmortalWrt for Netis NX62 (Ultimate V7 - Enterprise Routing Edition)
+# ImmortalWrt for Netis NX62 (Ultimate V9 - Enterprise Routing Edition)
 ### BGP, VxLAN, Seamless Mesh, NAS, and Advanced VPN Gateway
 
 This is the definitive **ImmortalWrt** custom build for the **Netis NX62** (Netcore N60 Pro), powered by the quad-core **MediaTek MT7986 (Filogic 830)** SoC. 
 
-**Ultimate V7** bridges the gap between home networking and data center routing. It introduces dynamic routing protocols (BGP/OSPF via BIRD2, Babel) and L2 overlay networks (VxLAN), making it the ultimate tool for complex network topologies, automated policy-based routing, and multi-site bridging.
+**Ultimate V9** bridges the gap between home networking and data center routing. It introduces dynamic routing protocols (BGP/OSPF via BIRD2, Babel) and L2 overlay networks (VxLAN), making it the ultimate tool for complex network topologies, automated policy-based routing, and multi-site bridging.
 
 ---
 
-## 🚀 What's New in Ultimate V7?
+## 🚀 What's New in Ultimate V9?
 
 * **Dynamic Routing (BIRD 2):** Full support for BGP, OSPF, and RIP. Perfect for receiving automated route updates (e.g., dynamic split-tunneling lists) without manual IPSet management.
 * **Babel Routing Protocol:** A loop-avoiding distance-vector routing protocol (`babeld`) that excels in wireless and mesh environments.
