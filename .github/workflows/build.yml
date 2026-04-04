@@ -1,4 +1,4 @@
-name: Build ImmortalWrt Netis NX62 Ultimate V9 Final
+name: Build ImmortalWrt Archer AX80 Ultimate V9 Final
 
 on:
   workflow_dispatch:
@@ -37,10 +37,10 @@ jobs:
           cd openwrt
           rm -f .config
           
-          # Основные параметры железа (Filogic 820 / 512MB RAM / 128MB Flash)
+          # Основные параметры железа (TP-Link Archer AX80 v1)
           echo "CONFIG_TARGET_mediatek=y" > .config
           echo "CONFIG_TARGET_mediatek_filogic=y" >> .config
-          echo "CONFIG_TARGET_mediatek_filogic_DEVICE_netcore_n60-pro=y" >> .config
+          echo "CONFIG_TARGET_mediatek_filogic_DEVICE_tplink_archer-ax80-v1=y" >> .config
           
           # Удаление конфликтов (dnsmasq и wpad)
           echo "# CONFIG_PACKAGE_dnsmasq is not set" >> .config
@@ -181,5 +181,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ImmortalWrt_NetisNX62_Ultimate_V9_Final
+          name: ImmortalWrt_ArcherAX80_Ultimate_V9_Final
           path: openwrt/bin/targets/mediatek/filogic/
