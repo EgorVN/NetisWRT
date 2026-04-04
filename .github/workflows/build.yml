@@ -1,4 +1,4 @@
-name: Build ImmortalWrt Netis NX62 Ultimate V8 (Final)
+name: Build ImmortalWrt Netis NX62 Ultimate V9 Final
 
 on:
   workflow_dispatch:
@@ -37,12 +37,12 @@ jobs:
           cd openwrt
           rm -f .config
           
-          # Target
+          # Основные параметры железа (Filogic 820 / 512MB RAM / 128MB Flash)
           echo "CONFIG_TARGET_mediatek=y" > .config
           echo "CONFIG_TARGET_mediatek_filogic=y" >> .config
           echo "CONFIG_TARGET_mediatek_filogic_DEVICE_netcore_n60-pro=y" >> .config
           
-          # Conflicts
+          # Удаление конфликтов (dnsmasq и wpad)
           echo "# CONFIG_PACKAGE_dnsmasq is not set" >> .config
           echo "# CONFIG_PACKAGE_wpad-basic-wolfssl is not set" >> .config
           echo "# CONFIG_PACKAGE_wpad-mini is not set" >> .config
@@ -56,21 +56,21 @@ jobs:
           CONFIG_PACKAGE_kmod-nft-core=y
           CONFIG_PACKAGE_kmod-nft-offload=y
 
-          # --- CPU / IRQ ---
+          # --- CPU / IRQ (Оптимизации производительности) ---
           CONFIG_PACKAGE_irqbalance=y
           CONFIG_PACKAGE_kmod-irqbypass=y
           CONFIG_PACKAGE_kmod-rps=y
           CONFIG_PACKAGE_cpufrequtils=y
           CONFIG_PACKAGE_autocore-arm=y
 
-          # --- LuCI ---
+          # --- LuCI И ЛОКАЛИЗАЦИЯ ---
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_luci-ssl-openssl=y
           CONFIG_PACKAGE_luci-i18n-base-ru=y
           CONFIG_PACKAGE_luci-app-ttyd=y
           CONFIG_PACKAGE_luci-app-statistics=y
 
-          # --- WAN / PPP ---
+          # --- WAN / PPP ПРОТОКОЛЫ ---
           CONFIG_PACKAGE_luci-proto-ppp=y
           CONFIG_PACKAGE_ppp-mod-pppoe=y
           CONFIG_PACKAGE_ppp-mod-pppol2tp=y
@@ -79,7 +79,7 @@ jobs:
           CONFIG_PACKAGE_luci-app-xl2tpd=y
           CONFIG_PACKAGE_xl2tpd=y
 
-          # --- MODEM 4G/5G (ПОЛНЫЙ СТЕК: MBIM, NCM, ACM, QMI) ---
+          # --- MODEM 4G/5G (МАКСИМАЛЬНЫЙ СТЕК ДРАЙВЕРОВ) ---
           CONFIG_PACKAGE_modemmanager=y
           CONFIG_PACKAGE_luci-app-modemmanager=y
           CONFIG_PACKAGE_usb-modeswitch=y
@@ -91,12 +91,12 @@ jobs:
           CONFIG_PACKAGE_kmod-usb-net-rndis=y
           CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
 
-          # --- VPN ---
+          # --- VPN (AMNEZIAWG) ---
           CONFIG_PACKAGE_kmod-amneziawg=y
           CONFIG_PACKAGE_amneziawg-tools=y
           CONFIG_PACKAGE_luci-app-amneziawg=y
 
-          # --- МАРШРУТИЗАЦИЯ И ТУННЕЛИРОВАНИЕ (BGP + Babel + VxLAN) ---
+          # --- МАРШРУТИЗАЦИЯ (BGP + Babel Mesh + VxLAN) ---
           CONFIG_PACKAGE_babeld=y
           CONFIG_PACKAGE_luci-app-babeld=y
           CONFIG_PACKAGE_bird2=y
@@ -108,6 +108,7 @@ jobs:
           CONFIG_PACKAGE_dnsmasq_full_ipset=y
           CONFIG_PACKAGE_dnsmasq_full_nftset=y
           CONFIG_PACKAGE_luci-app-sqm=y
+          CONFIG_PACKAGE_kmod-sched-cake=y
           CONFIG_PACKAGE_luci-app-adblock-fast=y
           CONFIG_PACKAGE_https-dns-proxy=y
           CONFIG_PACKAGE_luci-app-https-dns-proxy=y
@@ -120,13 +121,13 @@ jobs:
           CONFIG_PACKAGE_ddns-scripts_services=y
           CONFIG_PACKAGE_ddns-scripts_no-ip_com=y
 
-          # --- МОНИТОРИНГ И ОБНАРУЖЕНИЕ ---
+          # --- МОНИТОРИНГ И ОБНАРУЖЕНИЕ (APPLE / WINDOWS) ---
           CONFIG_PACKAGE_luci-app-nlbwmon=y
           CONFIG_PACKAGE_avahi-dbus-daemon=y
           CONFIG_PACKAGE_luci-app-avahi=y
           CONFIG_PACKAGE_wsdd2=y
 
-          # --- NAS И ДИСКИ ---
+          # --- NAS И ДИСКИ (USB3 + FS + SAMBA4) ---
           CONFIG_PACKAGE_luci-app-samba4=y
           CONFIG_PACKAGE_samba4-server=y
           CONFIG_PACKAGE_samba4-libs=y
@@ -143,7 +144,7 @@ jobs:
           CONFIG_PACKAGE_luci-app-disk-man=y
           CONFIG_PACKAGE_luci-app-hd-idle=y
 
-          # --- MESH И БЕСШОВНЫЙ WI-FI ---
+          # --- WI-FI MESH И РОУМИНГ ---
           CONFIG_PACKAGE_wpad-openssl=y
           CONFIG_PACKAGE_dawn=y
           CONFIG_PACKAGE_luci-app-dawn=y
@@ -151,7 +152,7 @@ jobs:
           CONFIG_PACKAGE_batctl-default=y
           CONFIG_PACKAGE_luci-app-batman-adv=y
 
-          # --- УТИЛИТЫ И ДИАГНОСТИКА ---
+          # --- УТИЛИТЫ ДЛЯ ДИАГНОСТИКИ И ТЕРМИНАЛА ---
           CONFIG_PACKAGE_mc=y
           CONFIG_PACKAGE_nano=y
           CONFIG_PACKAGE_htop=y
@@ -180,5 +181,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ImmortalWrt_NetisNX62_Ultimate_V8
+          name: ImmortalWrt_NetisNX62_Ultimate_V9_Final
           path: openwrt/bin/targets/mediatek/filogic/
