@@ -1,4 +1,4 @@
-name: Build ImmortalWrt Netis NX62 Ultimate V9 Final
+name: Build ImmortalWrt Netis NX62 Ultimate V9.1 Fixed
 
 on:
   workflow_dispatch:
@@ -75,13 +75,14 @@ jobs:
           CONFIG_PACKAGE_ppp-mod-pppoe=y
           CONFIG_PACKAGE_ppp-mod-pppol2tp=y
 
-          # --- L2TP SERVER ---
+          # --- L2TP SERVER / CLIENT ---
           CONFIG_PACKAGE_luci-app-xl2tpd=y
           CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_luci-proto-l2tp=y
 
           # --- MODEM 4G/5G (МАКСИМАЛЬНЫЙ СТЕК ДРАЙВЕРОВ) ---
           CONFIG_PACKAGE_modemmanager=y
-          CONFIG_PACKAGE_luci-app-modemmanager=y
+          CONFIG_PACKAGE_luci-proto-modemmanager=y
           CONFIG_PACKAGE_usb-modeswitch=y
           CONFIG_PACKAGE_kmod-usb-net-cdc-mbim=y
           CONFIG_PACKAGE_kmod-usb-net-cdc-ncm=y
@@ -94,7 +95,7 @@ jobs:
           # --- VPN (AMNEZIAWG) ---
           CONFIG_PACKAGE_kmod-amneziawg=y
           CONFIG_PACKAGE_amneziawg-tools=y
-          CONFIG_PACKAGE_luci-app-amneziawg=y
+          CONFIG_PACKAGE_luci-proto-amneziawg=y
 
           # --- МАРШРУТИЗАЦИЯ (BGP + Babel Mesh + VxLAN) ---
           CONFIG_PACKAGE_babeld=y
@@ -124,7 +125,6 @@ jobs:
           # --- МОНИТОРИНГ И ОБНАРУЖЕНИЕ (APPLE / WINDOWS) ---
           CONFIG_PACKAGE_luci-app-nlbwmon=y
           CONFIG_PACKAGE_avahi-dbus-daemon=y
-          CONFIG_PACKAGE_luci-app-avahi=y
           CONFIG_PACKAGE_wsdd2=y
 
           # --- NAS И ДИСКИ (USB3 + FS + SAMBA4) ---
@@ -150,7 +150,7 @@ jobs:
           CONFIG_PACKAGE_luci-app-dawn=y
           CONFIG_PACKAGE_kmod-batman-adv=y
           CONFIG_PACKAGE_batctl-default=y
-          CONFIG_PACKAGE_luci-app-batman-adv=y
+          CONFIG_PACKAGE_luci-proto-batadv=y
 
           # --- УТИЛИТЫ ДЛЯ ДИАГНОСТИКИ И ТЕРМИНАЛА ---
           CONFIG_PACKAGE_mc=y
@@ -181,5 +181,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ImmortalWrt_NetisNX62_Ultimate_V9_Final
+          name: ImmortalWrt_NetisNX62_Ultimate_V9.1_Fixed
           path: openwrt/bin/targets/mediatek/filogic/
